@@ -15,15 +15,21 @@ if "messages" not in st.session_state:
 for msg in st.session_state.messages:
     st.chat_message(msg["role"]).write(msg["content"])
 
-if prompt := st.chat_input():
+if user_input := st.chat_input():
     if not openai_api_key:
         st.info("Please add your OpenAI API key to continue.")
         st.stop()
+    prompt = f""" 
+              reply in pirate style to the user
+              prompt delimitted by the backticks 
 
+              `{user_input}`
+              """
     client = OpenAI(api_key=openai_api_key)
     st.session_state.messages.append({"role": "user", "content": prompt})
-    st.chat_message("user").write(prompt)
-    response = client.chat.completions.create(model="gpt-3.5-turbo", messages=st.session_state.messages)
+    st.chat_message("user").write(user_input)
+    response = client.chat.completions.create(model="gpt-4o-mini", messages=st.session_state.messages)
     msg = response.choices[0].message.content
+    print(response)
     st.session_state.messages.append({"role": "assistant", "content": msg})
     st.chat_message("assistant").write(msg)
